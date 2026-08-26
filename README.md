@@ -338,7 +338,7 @@ The dashboard provides access to:
 * Blockchain network integration
 * Improved responsive UI
 
-## 👩‍💻 Author
+## 👩‍💻 Developed By
 
 **Abhinaya Kuchi**
 
