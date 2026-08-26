@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Verify Land - Blockchain Land Records</title>
+
+    <link
+        rel="stylesheet"
+        href="../css/style.css"
+    >
+
+    <style>
+
+        .result-box {
+            margin-top: 25px;
+            padding: 20px;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        }
+
+        .blockchain-box {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f5f7fa;
+            border-radius: 10px;
+        }
+
+        .success-message {
+            color: green;
+            font-weight: bold;
+        }
+
+        .error-message {
+            color: red;
+            font-weight: bold;
+        }
+
+        .hash {
+            word-break: break-all;
+            font-family: monospace;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="container">
+
+    <h1>Blockchain Land Verification</h1>
+
+    <p>
+        Verify a land record using its Survey Number.
+    </p>
+
+
+    <!-- =====================================
+         VERIFY FORM
+    ====================================== -->
+
+    <form id="verifyForm">
+
+        <div class="form-group">
+
+            <label for="surveyNumber">
+                Survey Number
+            </label>
+
+            <input
+                type="text"
+                id="surveyNumber"
+                placeholder="Enter Survey Number"
+                required
+            >
+
+        </div>
+
+
+        <button type="submit">
+            Verify Land
+        </button>
+
+    </form>
+
+
+    <!-- =====================================
+         MESSAGE
+    ====================================== -->
+
+    <p id="message"></p>
+
+
+    <!-- =====================================
+         LAND RESULT
+    ====================================== -->
+
+    <div
+        id="result"
+        class="result-box"
+        style="display:none;"
+    >
+
+        <h2>Land Record</h2>
+
+
+        <p>
+            <strong>Owner Name:</strong>
+            <span id="ownerName"></span>
+        </p>
+
+        <p>
+            <strong>Owner ID:</strong>
+            <span id="ownerId"></span>
+        </p>
+
+        <p>
+            <strong>Survey Number:</strong>
+            <span id="survey"></span>
+        </p>
+
+        <p>
+            <strong>Location:</strong>
+            <span id="location"></span>
+        </p>
+
+        <p>
+            <strong>Land Area:</strong>
+            <span id="landArea"></span>
+        </p>
+
+        <p>
+            <strong>Land Type:</strong>
+            <span id="landType"></span>
+        </p>
+
+        <p>
+            <strong>Document Number:</strong>
+            <span id="documentNumber"></span>
+        </p>
+
+        <p>
+            <strong>Registration Date:</strong>
+            <span id="registrationDate"></span>
+        </p>
+
+        <p>
+            <strong>Ownership Status:</strong>
+            <span id="ownershipStatus"></span>
+        </p>
+
+
+        <!-- =====================================
+             BLOCKCHAIN
+        ====================================== -->
+
+        <div class="blockchain-box">
+
+            <h2>🔗 Blockchain Verification</h2>
+
+            <p>
+                <strong>Block Index:</strong>
+                <span id="blockIndex">-</span>
+            </p>
+
+            <p>
+                <strong>Transaction:</strong>
+                <span id="transaction">-</span>
+            </p>
+
+            <p>
+                <strong>Timestamp:</strong>
+                <span id="timestamp">-</span>
+            </p>
+
+            <p>
+                <strong>Current Hash:</strong>
+                <span
+                    id="currentHash"
+                    class="hash"
+                >
+                    -
+                </span>
+            </p>
+
+            <p>
+                <strong>Previous Hash:</strong>
+                <span
+                    id="previousHash"
+                    class="hash"
+                >
+                    -
+                </span>
+            </p>
+
+            <p>
+                <strong>Blockchain Status:</strong>
+                <span id="chainStatus">-</span>
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <br>
+
+    <a href="dashboard.html">
+        ← Back to Dashboard
+    </a>
+
+</div>
+
+
+<script>
+
+    // ==========================================
+    // API URLS
+    // ==========================================
+
+    const LAND_API =
+        "http://localhost:5000/api/land-records";
+
+    const BLOCKCHAIN_API =
+        "http://localhost:5000/api/blockchain";
+
+
+    // ==========================================
+    // FORM
+    // ==========================================
+
+    const verifyForm =
+        document.getElementById("verifyForm");
+
+
+    verifyForm.addEventListener(
+        "submit",
+        async function(event) {
+
+            event.preventDefault();
+
+
+            const surveyNumber =
+                document
+                    .getElementById("surveyNumber")
+                    .value
+                    .trim();
+
+
+            const message =
+                document.getElementById("message");
+
+            const result =
+                document.getElementById("result");
+
+
+            message.textContent =
+                "Searching...";
+
+            message.className = "";
+
+            result.style.display =
+                "none";
+
+
+            try {
+
+                // ==================================
+                // GET LAND RECORDS
+                // ==================================
+
+                const landResponse =
+                    await fetch(
+                        LAND_API
+                    );
+
+
+                if (!landResponse.ok) {
+
+                    throw new Error(
+                        "Land API returned HTTP " +
+                        landResponse.status
+                    );
+
+                }
+
+
+                const landData =
+                    await landResponse.json();
+
+
+                console.log(
+                    "Land API response:",
+                    landData
+                );
+
+
+                if (
+                    !landData.success ||
+                    !Array.isArray(landData.data)
+                ) {
+
+                    throw new Error(
+                        landData.message ||
+                        "Invalid land record API response"
+                    );
+
+                }
+
+
+                // ==================================
+                // FIND SURVEY NUMBER
+                // ==================================
+
+                const record =
+                    landData.data.find(
+                        item =>
+                            String(
+                                item.surveyNumber
+                            ).trim().toLowerCase() ===
+                            surveyNumber.toLowerCase()
+                    );
+
+
+                if (!record) {
+
+                    message.textContent =
+                        "❌ Land record not found.";
+
+                    message.className =
+                        "error-message";
+
+                    return;
+
+                }
+
+
+                // ==================================
+                // DISPLAY LAND RECORD
+                // ==================================
+
+                document.getElementById(
+                    "ownerName"
+                ).textContent =
+                    record.ownerName || "-";
+
+
+                document.getElementById(
+                    "ownerId"
+                ).textContent =
+                    record.ownerId || "-";
+
+
+                document.getElementById(
+                    "survey"
+                ).textContent =
+                    record.surveyNumber || "-";
+
+
+                document.getElementById(
+                    "location"
+                ).textContent =
+                    record.location || "-";
+
+
+                document.getElementById(
+                    "landArea"
+                ).textContent =
+                    record.landArea ?? "-";
+
+
+                document.getElementById(
+                    "landType"
+                ).textContent =
+                    record.landType || "-";
+
+
+                document.getElementById(
+                    "documentNumber"
+                ).textContent =
+                    record.documentNumber || "-";
+
+
+                document.getElementById(
+                    "registrationDate"
+                ).textContent =
+                    record.registrationDate
+                        ? new Date(
+                            record.registrationDate
+                        ).toLocaleDateString()
+                        : "-";
+
+
+                document.getElementById(
+                    "ownershipStatus"
+                ).textContent =
+                    record.ownershipStatus || "Active";
+
+
+                // ==================================
+                // GET BLOCKCHAIN
+                // ==================================
+
+                const blockchainResponse =
+                    await fetch(
+                        BLOCKCHAIN_API
+                    );
+
+
+                if (!blockchainResponse.ok) {
+
+                    throw new Error(
+                        "Blockchain API returned HTTP " +
+                        blockchainResponse.status
+                    );
+
+                }
+
+
+                const blockchainData =
+                    await blockchainResponse.json();
+
+
+                console.log(
+                    "Blockchain API response:",
+                    blockchainData
+                );
+
+
+                if (!blockchainData.success) {
+
+                    throw new Error(
+                        blockchainData.message ||
+                        "Blockchain API failed"
+                    );
+
+                }
+
+
+                // ==================================
+                // FIND BLOCK
+                // ==================================
+
+                const blocks =
+                    Array.isArray(
+                        blockchainData.chain
+                    )
+                        ? blockchainData.chain
+                        : [];
+
+
+                const block =
+                    blocks.find(
+                        item => {
+
+                            if (
+                                !item.data
+                            ) {
+                                return false;
+                            }
+
+
+                            return (
+
+                                item.data
+                                    .transactionType ===
+                                    "LAND_RECORD_CREATED"
+
+                                &&
+
+                                String(
+                                    item.data.surveyNumber
+                                ).trim().toLowerCase() ===
+                                String(
+                                    record.surveyNumber
+                                ).trim().toLowerCase()
+
+                            );
+
+                        }
+                    );
+
+
+                // ==================================
+                // DISPLAY BLOCKCHAIN DATA
+                // ==================================
+
+                if (block) {
+
+                    document.getElementById(
+                        "blockIndex"
+                    ).textContent =
+                        block.index;
+
+
+                    document.getElementById(
+                        "transaction"
+                    ).textContent =
+                        block.data.transactionType;
+
+
+                    document.getElementById(
+                        "timestamp"
+                    ).textContent =
+                        block.timestamp
+                            ? new Date(
+                                block.timestamp
+                            ).toLocaleString()
+                            : "-";
+
+
+                    document.getElementById(
+                        "currentHash"
+                    ).textContent =
+                        block.hash || "-";
+
+
+                    document.getElementById(
+                        "previousHash"
+                    ).textContent =
+                        block.previousHash || "-";
+
+
+                    document.getElementById(
+                        "chainStatus"
+                    ).textContent =
+                        blockchainData.valid
+                            ? "✅ Blockchain Valid"
+                            : "❌ Blockchain Invalid";
+
+                }
+
+                else {
+
+                    document.getElementById(
+                        "blockIndex"
+                    ).textContent =
+                        "-";
+
+
+                    document.getElementById(
+                        "transaction"
+                    ).textContent =
+                        "No blockchain transaction found";
+
+
+                    document.getElementById(
+                        "timestamp"
+                    ).textContent =
+                        "-";
+
+
+                    document.getElementById(
+                        "currentHash"
+                    ).textContent =
+                        "-";
+
+
+                    document.getElementById(
+                        "previousHash"
+                    ).textContent =
+                        "-";
+
+
+                    document.getElementById(
+                        "chainStatus"
+                    ).textContent =
+                        "⚠️ Land record exists, but blockchain transaction was not found.";
+
+                }
+
+
+                // ==================================
+                // SHOW RESULT
+                // ==================================
+
+                result.style.display =
+                    "block";
+
+
+                message.textContent =
+                    "✅ Land record verified successfully.";
+
+                message.className =
+                    "success-message";
+
+
+            }
+
+            catch(error) {
+
+                console.error(
+                    "VERIFY ERROR:",
+                    error
+                );
+
+
+                message.textContent =
+                    "❌ Unable to connect to land record API";
+
+                message.className =
+                    "error-message";
+
+            }
+
+        }
+    );
+
+</script>
+
+</body>
+
+</html>

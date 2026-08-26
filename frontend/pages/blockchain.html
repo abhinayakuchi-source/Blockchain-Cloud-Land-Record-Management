@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Blockchain Verification</title>
+
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            margin: 0;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .status {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .valid {
+            color: green;
+        }
+
+        .invalid {
+            color: red;
+        }
+
+        .block {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .block h3 {
+            margin-top: 0;
+        }
+
+        .item {
+            margin: 8px 0;
+            word-break: break-word;
+        }
+
+        .label {
+            font-weight: bold;
+        }
+
+        .hash {
+            font-family: monospace;
+            background: #f1f1f1;
+            padding: 8px;
+            border-radius: 5px;
+        }
+
+        .loading {
+            text-align: center;
+            font-size: 18px;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+    <h1>🔗 Blockchain Land Record Verification</h1>
+
+
+    <div id="status"
+         class="status">
+
+        Checking blockchain...
+
+    </div>
+
+
+    <div id="blocks">
+
+        <div class="loading">
+
+            Loading blockchain...
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<script>
+
+
+const API_URL =
+    "http://localhost:5000/api/blockchain";
+
+
+
+async function loadBlockchain() {
+
+    try {
+
+        const response =
+            await fetch(API_URL);
+
+
+        const result =
+            await response.json();
+
+
+        // ================================
+        // BLOCKCHAIN STATUS
+        // ================================
+
+        const status =
+            document.getElementById("status");
+
+
+        if (result.valid) {
+
+            status.innerHTML =
+                "✅ Blockchain is VALID";
+
+            status.className =
+                "status valid";
+
+        } else {
+
+            status.innerHTML =
+                "❌ Blockchain has been TAMPERED";
+
+            status.className =
+                "status invalid";
+
+        }
+
+
+
+        // ================================
+        // DISPLAY BLOCKS
+        // ================================
+
+        const blocks =
+            document.getElementById("blocks");
+
+
+        blocks.innerHTML = "";
+
+
+        result.chain.forEach(block => {
+
+
+            const blockDiv =
+                document.createElement("div");
+
+
+            blockDiv.className =
+                "block";
+
+
+            let transactionType =
+                "GENESIS BLOCK";
+
+
+            if (
+                block.data &&
+                block.data.transactionType
+            ) {
+
+                transactionType =
+                    block.data.transactionType;
+
+            }
+
+
+
+            let ownerName =
+                block.data?.ownerName || "-";
+
+
+            let surveyNumber =
+                block.data?.surveyNumber || "-";
+
+
+            let recordId =
+                block.data?.recordId || "-";
+
+
+
+            blockDiv.innerHTML = `
+
+                <h3>
+                    Block #${block.index}
+                </h3>
+
+
+                <div class="item">
+
+                    <span class="label">
+                        Transaction:
+                    </span>
+
+                    ${transactionType}
+
+                </div>
+
+
+                <div class="item">
+
+                    <span class="label">
+                        Owner:
+                    </span>
+
+                    ${ownerName}
+
+                </div>
+
+
+                <div class="item">
+
+                    <span class="label">
+                        Survey Number:
+                    </span>
+
+                    ${surveyNumber}
+
+                </div>
+
+
+                <div class="item">
+
+                    <span class="label">
+                        Record ID:
+                    </span>
+
+                    ${recordId}
+
+                </div>
+
+
+                <div class="item">
+
+                    <span class="label">
+                        Timestamp:
+                    </span>
+
+                    ${new Date(
+                        block.timestamp
+                    ).toLocaleString()}
+
+                </div>
+
+
+                <div class="item">
+
+                    <span class="label">
+                        Previous Hash:
+                    </span>
+
+                    <div class="hash">
+
+                        ${block.previousHash}
+
+                    </div>
+
+                </div>
+
+
+                <div class="item">
+
+                    <span class="label">
+                        Current Hash:
+                    </span>
+
+                    <div class="hash">
+
+                        ${block.hash}
+
+                    </div>
+
+                </div>
+
+            `;
+
+
+            blocks.appendChild(blockDiv);
+
+        });
+
+
+    } catch (error) {
+
+        console.error(error);
+
+
+        document.getElementById(
+            "status"
+        ).innerHTML =
+            "❌ Unable to connect to server";
+
+
+        document.getElementById(
+            "blocks"
+        ).innerHTML = "";
+
+    }
+
+}
+
+
+
+loadBlockchain();
+
+
+</script>
+
+
+</body>
+
+</html>

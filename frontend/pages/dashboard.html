@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+```
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<title>Land Record Management Dashboard</title>
+
+<style>
+
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        background: #f1f5f9;
+        color: #1e293b;
+    }
+
+    /* =========================
+       NAVBAR
+    ========================= */
+
+    .navbar {
+        background: #1e3a8a;
+        color: white;
+        padding: 18px 35px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+    }
+
+    .navbar h2 {
+        margin: 0;
+        font-size: 22px;
+    }
+
+    .logout {
+        background: #dc2626;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    .logout:hover {
+        background: #b91c1c;
+    }
+
+    /* =========================
+       MAIN CONTAINER
+    ========================= */
+
+    .container {
+        width: 92%;
+        max-width: 1200px;
+        margin: 35px auto;
+    }
+
+    /* =========================
+       WELCOME
+    ========================= */
+
+    .welcome {
+        background: white;
+        padding: 30px;
+        border-radius: 14px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    .welcome h1 {
+        margin-top: 0;
+        margin-bottom: 10px;
+        color: #1e3a8a;
+    }
+
+    .welcome p {
+        margin-bottom: 0;
+        color: #64748b;
+        font-size: 16px;
+    }
+
+    /* =========================
+       CARDS
+    ========================= */
+
+    .cards {
+        display: grid;
+        grid-template-columns: repeat(
+            auto-fit,
+            minmax(220px, 1fr)
+        );
+        gap: 22px;
+    }
+
+    .card {
+        background: white;
+        padding: 25px;
+        border-radius: 14px;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        transition: 0.25s;
+    }
+
+    .card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    }
+
+    .icon {
+        width: 65px;
+        height: 65px;
+        margin: 0 auto 15px;
+        background: #dbeafe;
+        color: #1d4ed8;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 30px;
+        font-weight: bold;
+    }
+
+    .card h3 {
+        margin: 10px 0;
+        color: #1e293b;
+    }
+
+    .card p {
+        color: #64748b;
+        min-height: 40px;
+        line-height: 1.5;
+    }
+
+    .card button {
+        background: #2563eb;
+        color: white;
+        border: none;
+        padding: 10px 22px;
+        border-radius: 7px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    .card button:hover {
+        background: #1d4ed8;
+    }
+
+    /* =========================
+       STATISTICS
+    ========================= */
+
+    .section-title {
+        margin-top: 40px;
+        margin-bottom: 20px;
+        color: #1e3a8a;
+    }
+
+    .statistics {
+        display: grid;
+        grid-template-columns: repeat(
+            auto-fit,
+            minmax(200px, 1fr)
+        );
+        gap: 22px;
+    }
+
+    .stat {
+        background: white;
+        padding: 25px;
+        border-radius: 14px;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    .stat h2 {
+        font-size: 32px;
+        margin: 10px 0;
+        color: #1e3a8a;
+    }
+
+    .stat p {
+        margin: 0;
+        color: #64748b;
+    }
+
+    #blockchainStatus {
+        font-size: 22px;
+    }
+
+    /* =========================
+       FOOTER
+    ========================= */
+
+    .footer {
+        text-align: center;
+        margin: 40px 0 20px;
+        color: #64748b;
+        font-size: 14px;
+    }
+
+    /* =========================
+       MOBILE
+    ========================= */
+
+    @media (max-width: 600px) {
+
+        .navbar {
+            flex-direction: column;
+            gap: 15px;
+            text-align: center;
+        }
+
+        .container {
+            width: 94%;
+        }
+
+        .welcome {
+            padding: 22px;
+        }
+
+    }
+
+</style>
+```
+
+</head>
+
+<body>
+
+<!-- =========================
+     NAVBAR
+========================= -->
+
+<div class="navbar">
+
+```
+<h2>
+    Land Record Management
+</h2>
+
+<button
+    class="logout"
+    onclick="logout()">
+
+    Logout
+
+</button>
+```
+
+</div>
+
+<!-- =========================
+     MAIN
+========================= -->
+
+<div class="container">
+
+```
+<!-- =========================
+     WELCOME
+========================= -->
+
+<div class="welcome">
+
+    <h1>
+        Welcome to Land Record Dashboard
+    </h1>
+
+    <p>
+        Secure cloud-based land record management
+        using blockchain technology.
+    </p>
+
+</div>
+
+
+<!-- =========================
+     MENU CARDS
+========================= -->
+
+<div class="cards">
+
+
+    <!-- ADD LAND -->
+
+    <div class="card">
+
+        <div class="icon">
+            +
+        </div>
+
+        <h3>
+            Add Land Record
+        </h3>
+
+        <p>
+            Register a new land record securely.
+        </p>
+
+        <button
+            onclick="goTo('../add-land.html')">
+
+            Open
+
+        </button>
+
+    </div>
+
+
+    <!-- LAND RECORDS -->
+
+    <div class="card">
+
+        <div class="icon">
+            L
+        </div>
+
+        <h3>
+            Land Records
+        </h3>
+
+        <p>
+            View all registered land records.
+        </p>
+
+        <button
+            onclick="goTo('land-records.html')">
+
+            Open
+
+        </button>
+
+    </div>
+
+
+    <!-- TRANSFER -->
+
+    <div class="card">
+
+        <div class="icon">
+            T
+        </div>
+
+        <h3>
+            Transfer Ownership
+        </h3>
+
+        <p>
+            Transfer land ownership securely.
+        </p>
+
+        <button
+            onclick="goTo('transfer-ownership.html')">
+
+            Open
+
+        </button>
+
+    </div>
+
+
+    <!-- VERIFY -->
+
+    <div class="card">
+
+        <div class="icon">
+            V
+        </div>
+
+        <h3>
+            Verify Land
+        </h3>
+
+        <p>
+            Verify land ownership and records.
+        </p>
+
+        <button
+            onclick="goTo('verify-land.html')">
+
+            Open
+
+        </button>
+
+    </div>
+
+
+    <!-- BLOCKCHAIN -->
+
+    <div class="card">
+
+        <div class="icon">
+            B
+        </div>
+
+        <h3>
+            Blockchain
+        </h3>
+
+        <p>
+            View blockchain transactions.
+        </p>
+
+        <button
+            onclick="goTo('blockchain.html')">
+
+            Open
+
+        </button>
+
+    </div>
+
+
+</div>
+
+
+<!-- =========================
+     STATISTICS
+========================= -->
+
+<h2 class="section-title">
+    System Statistics
+</h2>
+
+
+<div class="statistics">
+
+
+    <!-- TOTAL RECORDS -->
+
+    <div class="stat">
+
+        <p>
+            Total Land Records
+        </p>
+
+        <h2 id="totalRecords">
+            -
+        </h2>
+
+    </div>
+
+
+    <!-- BLOCKCHAIN BLOCKS -->
+
+    <div class="stat">
+
+        <p>
+            Blockchain Blocks
+        </p>
+
+        <h2 id="totalBlocks">
+            -
+        </h2>
+
+    </div>
+
+
+    <!-- BLOCKCHAIN STATUS -->
+
+    <div class="stat">
+
+        <p>
+            Blockchain Status
+        </p>
+
+        <h2 id="blockchainStatus">
+            -
+        </h2>
+
+    </div>
+
+
+</div>
+
+
+<!-- =========================
+     FOOTER
+========================= -->
+
+<div class="footer">
+
+    Blockchain Cloud Land Record Management System
+
+</div>
+```
+
+</div>
+
+<script>
+
+
+// ==========================================
+// NAVIGATION
+// ==========================================
+
+function goTo(page) {
+
+    window.location.href = page;
+
+}
+
+
+// ==========================================
+// LOGOUT
+// ==========================================
+
+function logout() {
+
+    localStorage.removeItem("token");
+
+    localStorage.removeItem("user");
+
+    window.location.href = "login.html";
+
+}
+
+
+// ==========================================
+// LOAD STATISTICS
+// ==========================================
+
+async function loadStatistics() {
+
+    try {
+
+        // ================================
+        // LAND RECORDS
+        // ================================
+
+        const recordsResponse =
+            await fetch(
+                "http://localhost:5000/api/land-records"
+            );
+
+        const recordsResult =
+            await recordsResponse.json();
+
+
+        if (
+            recordsResult.success &&
+            Array.isArray(recordsResult.data)
+        ) {
+
+            document.getElementById(
+                "totalRecords"
+            ).textContent =
+                recordsResult.data.length;
+
+        }
+
+
+        // ================================
+        // BLOCKCHAIN
+        // ================================
+
+        const blockchainResponse =
+            await fetch(
+                "http://localhost:5000/api/blockchain"
+            );
+
+        const blockchainResult =
+            await blockchainResponse.json();
+
+
+        if (
+            blockchainResult.success
+        ) {
+
+            document.getElementById(
+                "totalBlocks"
+            ).textContent =
+                blockchainResult.chain.length;
+
+
+            document.getElementById(
+                "blockchainStatus"
+            ).textContent =
+                blockchainResult.valid
+                    ? "VALID"
+                    : "INVALID";
+
+        }
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Dashboard error:",
+            error
+        );
+
+        document.getElementById(
+            "totalRecords"
+        ).textContent = "0";
+
+        document.getElementById(
+            "totalBlocks"
+        ).textContent = "0";
+
+        document.getElementById(
+            "blockchainStatus"
+        ).textContent = "OFFLINE";
+
+    }
+
+}
+
+
+// ==========================================
+// START DASHBOARD
+// ==========================================
+
+loadStatistics();
+
+
+</script>
+
+</body>
+
+</html>
+
